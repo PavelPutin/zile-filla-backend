@@ -8,6 +8,7 @@ public class FileSystemUtils {
      * @param path путь внутри поддерева, начинающегося в root
      * @param root корневая директория поддерева
      * @return путь в поддереве
+     * @throws IllegalArgumentException если корень не является абсолютным путём
      */
     public static Path getPathForRoot(final Path path, final Path root) {
         if (!root.isAbsolute()) {
