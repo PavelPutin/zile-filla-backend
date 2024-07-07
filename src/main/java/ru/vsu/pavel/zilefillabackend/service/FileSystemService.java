@@ -6,14 +6,14 @@ import org.springframework.stereotype.Service;
 import ru.vsu.pavel.zilefillabackend.dto.FileMetadata;
 import ru.vsu.pavel.zilefillabackend.dto.FileSystemObjectDto;
 import ru.vsu.pavel.zilefillabackend.dto.FileSystemObjectType;
-import ru.vsu.pavel.zilefillabackend.util.FileSystemUtils;
 
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ru.vsu.pavel.zilefillabackend.util.FileSystemUtils.*;
+import static ru.vsu.pavel.zilefillabackend.util.FileSystemUtils.getDirectorySizeBytes;
+import static ru.vsu.pavel.zilefillabackend.util.FileSystemUtils.getPathForRoot;
 
 @Service
 @Slf4j
