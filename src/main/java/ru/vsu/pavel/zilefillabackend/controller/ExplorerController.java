@@ -5,11 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import ru.vsu.pavel.zilefillabackend.dto.ErrorDto;
 import ru.vsu.pavel.zilefillabackend.dto.FileSystemObjectDto;
 import ru.vsu.pavel.zilefillabackend.service.FileSystemService;
 
@@ -29,13 +27,14 @@ public class ExplorerController {
     private final FileSystemService fileSystemService;
 
     @GetMapping(value = {"/", "/{*path}"})
-    public ResponseEntity<List<FileSystemObjectDto>> changeDirectory(@PathVariable(value = "path") Optional<String> path) {
-        try {
-            var actualPath = Paths.get(path.orElse(""));
-            return ResponseEntity.ok(fileSystemService.changeDirectory(actualPath));
-        } catch (InvalidPathException | NotDirectoryException e) {
-            log.warn(e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
+    public ResponseEntity<List<FileSystemObjectDto>> changeDirectory(@PathVariable(value = "path") Optional<String> path) throws NotDirectoryException {
+        var actualPath = Paths.get(path.orElse(""));
+        return ResponseEntity.ok(fileSystemService.changeDirectory(actualPath));
+    }
+
+    @ExceptionHandler({InvalidPathException.class, NotDirectoryException.class})
+    public ResponseEntity<ErrorDto> InvalidPathException(Exception ex) {
+        log.warn(ex.getMessage(), ex);
+        return ResponseEntity.badRequest().body(new ErrorDto(ex.getMessage()));
     }
 }
