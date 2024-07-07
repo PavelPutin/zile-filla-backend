@@ -1,5 +1,6 @@
 package ru.vsu.pavel.zilefillabackend.service;
 
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,18 +22,24 @@ public class FileSystemService {
     @Value("${zilefilla.filesystem.root}")
     public String root;
 
+    @PostConstruct
+    public void init() {
+        log.info("Init FileSystemService with root '{}'", root);
+    }
+
     public List<FileSystemObjectDto> changeDirectory(Path path) throws NotDirectoryException, NoSuchFileException {
         log.debug("Change directory: {}", path);
         var rootPath = Path.of(root);
+        log.debug("Root path: {}", rootPath);
         var pathInSubTree = getPathForRoot(path, rootPath);
         log.debug("Change directory path: {}", pathInSubTree);
 
-        if (!Files.exists(path)) {
+        if (!Files.exists(pathInSubTree)) {
             log.warn("'{}' does not exist", path);
             throw new NoSuchFileException(path.toString());
         }
 
-        if (!Files.isDirectory(path)) {
+        if (!Files.isDirectory(pathInSubTree)) {
             log.warn("Try get not directory '{}'", path);
             throw new NotDirectoryException(path.toString());
         }

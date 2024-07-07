@@ -24,10 +24,15 @@ public class ExplorerController {
 
     private final FileSystemService fileSystemService;
 
-    @GetMapping(value = {"/", "/{*path}"})
+    @GetMapping(value = { "", "/", "/{*path}" })
     public ResponseEntity<List<FileSystemObjectDto>> changeDirectory(@PathVariable(value = "path") Optional<String> path) throws NotDirectoryException, NoSuchFileException {
-        var actualPath = Paths.get(path.orElse(""));
-        return ResponseEntity.ok(fileSystemService.changeDirectory(actualPath));
+        log.debug("ExplorerController.changeDirectory({})", path);
+
+        var actualPath = path.orElse("");
+        if (!actualPath.isEmpty()) {
+            actualPath = actualPath.substring(1);
+        }
+        return ResponseEntity.ok(fileSystemService.changeDirectory(Paths.get(actualPath)));
     }
 
     @ExceptionHandler({InvalidPathException.class, NotDirectoryException.class})

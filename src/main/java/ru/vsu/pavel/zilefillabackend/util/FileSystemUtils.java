@@ -16,10 +16,13 @@ public class FileSystemUtils {
      * @throws IllegalArgumentException если корень не является абсолютным путём
      */
     public static Path getPathForRoot(final Path path, final Path root) {
+        log.debug("Root path: {}", root);
         if (!root.isAbsolute()) {
             throw new IllegalArgumentException("Root must be absolute");
         }
         var normalized = path.normalize();
+        log.debug("Normalized path: {}", normalized);
+        log.debug("Resolved path: {}", root.resolve(normalized));
         return root.resolve(normalized);
     }
 
