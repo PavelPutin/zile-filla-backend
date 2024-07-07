@@ -1,11 +1,12 @@
 package ru.vsu.pavel.zilefillabackend.dto;
 
+import java.time.Instant;
 import java.util.Date;
 
 public record FileMetadata(
-    int sizeBytes,
-    Date creation,
-    Date access,
-    Date modification
+    long sizeBytes,
+    Instant creation,
+    Instant access,
+    Instant modification
 ) {
 }

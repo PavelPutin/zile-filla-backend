@@ -1,7 +1,7 @@
 package ru.vsu.pavel.zilefillabackend.dto;
 
 public record FileSystemObjectDto(
-        FileSystemObjectType type,
+        String type,
         String name,
         FileMetadata metadata
 ) {
