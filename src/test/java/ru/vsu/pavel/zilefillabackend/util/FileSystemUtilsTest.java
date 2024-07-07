@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static ru.vsu.pavel.zilefillabackend.util.FileSystemUtils.getPathForRoot;
+import static ru.vsu.pavel.zilefillabackend.util.FileSystemUtils.*;
 
 class FileSystemUtilsTest {
     @Test
