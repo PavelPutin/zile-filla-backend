@@ -16,6 +16,7 @@ import ru.vsu.pavel.zilefillabackend.service.FileSystemService;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/explorer")
@@ -25,15 +26,10 @@ public class ExplorerController {
 
     private final FileSystemService fileSystemService;
 
-    @GetMapping
-    public ResponseEntity<List<FileSystemObjectDto>> getRootChildren() {
-        return changeDirectory("");
-    }
-
-    @GetMapping("/{path}")
-    public ResponseEntity<List<FileSystemObjectDto>> changeDirectory(@PathVariable("path") String path) {
+    @GetMapping(value = {"/", "/{*path}"})
+    public ResponseEntity<List<FileSystemObjectDto>> changeDirectory(@PathVariable(value = "path") Optional<String> path) {
         try {
-            var actualPath = Paths.get(path);
+            var actualPath = Paths.get(path.orElse(""));
             return ResponseEntity.ok(fileSystemService.changeDirectory(actualPath));
         } catch (InvalidPathException e) {
             log.warn(e.getMessage(), e);
