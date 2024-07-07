@@ -8,10 +8,7 @@ import ru.vsu.pavel.zilefillabackend.dto.FileSystemObjectDto;
 import ru.vsu.pavel.zilefillabackend.dto.FileSystemObjectType;
 import ru.vsu.pavel.zilefillabackend.util.FileSystemUtils;
 
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.NotDirectoryException;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,11 +21,16 @@ public class FileSystemService {
     @Value("${zilefilla.filesystem.root}")
     public String root;
 
-    public List<FileSystemObjectDto> changeDirectory(Path path) throws NotDirectoryException {
+    public List<FileSystemObjectDto> changeDirectory(Path path) throws NotDirectoryException, NoSuchFileException {
         log.debug("Change directory: {}", path);
         var rootPath = Path.of(root);
         var pathInSubTree = getPathForRoot(path, rootPath);
         log.debug("Change directory path: {}", pathInSubTree);
+
+        if (!Files.exists(path)) {
+            log.warn("'{}' does not exist", path);
+            throw new NoSuchFileException(path.toString());
+        }
 
         if (!Files.isDirectory(path)) {
             log.warn("Try get not directory '{}'", path);
