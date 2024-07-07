@@ -13,7 +13,9 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.vsu.pavel.zilefillabackend.dto.FileSystemObjectDto;
 import ru.vsu.pavel.zilefillabackend.service.FileSystemService;
 
+import java.nio.file.FileSystemException;
 import java.nio.file.InvalidPathException;
+import java.nio.file.NotDirectoryException;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +33,7 @@ public class ExplorerController {
         try {
             var actualPath = Paths.get(path.orElse(""));
             return ResponseEntity.ok(fileSystemService.changeDirectory(actualPath));
-        } catch (InvalidPathException e) {
+        } catch (InvalidPathException | NotDirectoryException e) {
             log.warn(e.getMessage(), e);
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }

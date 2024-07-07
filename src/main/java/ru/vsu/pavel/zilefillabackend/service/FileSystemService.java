@@ -10,6 +10,7 @@ import ru.vsu.pavel.zilefillabackend.util.FileSystemUtils;
 
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
@@ -23,11 +24,16 @@ public class FileSystemService {
     @Value("${zilefilla.filesystem.root}")
     public String root;
 
-    public List<FileSystemObjectDto> changeDirectory(Path path) {
+    public List<FileSystemObjectDto> changeDirectory(Path path) throws NotDirectoryException {
         log.debug("Change directory: {}", path);
         var rootPath = Path.of(root);
         var pathInSubTree = getPathForRoot(path, rootPath);
         log.debug("Change directory path: {}", pathInSubTree);
+
+        if (!Files.isDirectory(path)) {
+            log.warn("Try get not directory '{}'", path);
+            throw new NotDirectoryException(path.toString());
+        }
 
         var result = new ArrayList<FileSystemObjectDto>();
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(pathInSubTree)) {
