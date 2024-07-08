@@ -28,7 +28,7 @@ public class ExplorerController {
     public ResponseEntity<List<FileSystemObjectDto>> changeDirectory(
             @PathVariable(value = "path")
             Optional<String> path
-    ) throws NotDirectoryException, NoSuchFileException {
+    ) throws NotDirectoryException {
         log.debug("ExplorerController.changeDirectory({})", path);
 
         var actualPath = path.orElse("");
