@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.vsu.pavel.zilefillabackend.dto.TextFileContent;
+import ru.vsu.pavel.zilefillabackend.errors.CantCheckFileTypeResponseException;
 import ru.vsu.pavel.zilefillabackend.errors.NotRegularFileResponseException;
 import ru.vsu.pavel.zilefillabackend.errors.NotTextFileResponseException;
 import ru.vsu.pavel.zilefillabackend.util.NotRegularFileException;
@@ -50,7 +51,7 @@ public class FileReaderService {
             }
         } catch (IOException e) {
             log.warn("Could not check file type '{}' because of IOException", path, e);
-            throw new RuntimeException("Can't check file type", e);
+            throw new CantCheckFileTypeResponseException(HttpStatus.INTERNAL_SERVER_ERROR, path.toString());
         } catch (SecurityException e) {
             log.warn("Could not check file type '{}' because of SecurityException", path, e);
         }
