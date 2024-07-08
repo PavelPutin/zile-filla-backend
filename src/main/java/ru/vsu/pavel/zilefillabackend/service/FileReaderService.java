@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.vsu.pavel.zilefillabackend.dto.TextFileContent;
 import ru.vsu.pavel.zilefillabackend.errors.CantCheckFileTypeResponseException;
+import ru.vsu.pavel.zilefillabackend.errors.FileAccessDeniedResponseException;
 import ru.vsu.pavel.zilefillabackend.errors.NotRegularFileResponseException;
 import ru.vsu.pavel.zilefillabackend.errors.NotTextFileResponseException;
 import ru.vsu.pavel.zilefillabackend.util.NotRegularFileException;
@@ -54,6 +55,7 @@ public class FileReaderService {
             throw new CantCheckFileTypeResponseException(HttpStatus.INTERNAL_SERVER_ERROR, path.toString());
         } catch (SecurityException e) {
             log.warn("Could not check file type '{}' because of SecurityException", path, e);
+            throw new FileAccessDeniedResponseException(HttpStatus.FORBIDDEN, path.toString());
         }
 
         try (BufferedReader reader = Files.newBufferedReader(pathInSubTree);
@@ -62,6 +64,9 @@ public class FileReaderService {
         } catch (IOException e) {
             log.warn("Could not read file '{}'", path, e);
             throw new RuntimeException("Can't read file", e);
+        } catch (SecurityException e) {
+            log.warn("Could not read file '{}' because of SecurityException", path, e);
+            throw new FileAccessDeniedResponseException(HttpStatus.FORBIDDEN, path.toString());
         }
     }
 }
