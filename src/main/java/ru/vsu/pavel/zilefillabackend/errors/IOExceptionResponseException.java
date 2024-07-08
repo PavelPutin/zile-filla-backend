@@ -7,12 +7,12 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class CantCheckFileTypeResponseException extends ErrorResponseException {
-    public CantCheckFileTypeResponseException(HttpStatusCode status, String file) {
+public class IOExceptionResponseException extends ErrorResponseException {
+    public IOExceptionResponseException(HttpStatusCode status, String file) {
         super(status);
-        setType(URI.create("/zile-filla/cant-check-file-type/"));
+        setType(URI.create("/zile-filla/internal-io-exception"));
         setTitle("Can't check file type");
-        setDetail("IOException occurred while checking file type");
+        setDetail("Internal IOException occurred");
         Path instance = Paths.get("/", file);
         setInstance(instance.toUri());
     }

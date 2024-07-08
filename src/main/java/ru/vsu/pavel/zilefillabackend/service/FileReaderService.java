@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.vsu.pavel.zilefillabackend.dto.TextFileContent;
-import ru.vsu.pavel.zilefillabackend.errors.CantCheckFileTypeResponseException;
+import ru.vsu.pavel.zilefillabackend.errors.IOExceptionResponseException;
 import ru.vsu.pavel.zilefillabackend.errors.FileAccessDeniedResponseException;
 import ru.vsu.pavel.zilefillabackend.errors.NotRegularFileResponseException;
 import ru.vsu.pavel.zilefillabackend.errors.NotTextFileResponseException;
@@ -51,10 +51,10 @@ public class FileReaderService {
                 throw new NotTextFileResponseException(HttpStatus.BAD_REQUEST, path.toString());
             }
         } catch (IOException e) {
-            log.warn("Could not check file type '{}' because of IOException", path, e);
-            throw new CantCheckFileTypeResponseException(HttpStatus.INTERNAL_SERVER_ERROR, path.toString());
+            log.warn("Can't check file type '{}' because of IOException", path, e);
+            throw new IOExceptionResponseException(HttpStatus.INTERNAL_SERVER_ERROR, path.toString());
         } catch (SecurityException e) {
-            log.warn("Could not check file type '{}' because of SecurityException", path, e);
+            log.warn("Can't check file type '{}' because of SecurityException", path, e);
             throw new FileAccessDeniedResponseException(HttpStatus.FORBIDDEN, path.toString());
         }
 
@@ -62,10 +62,10 @@ public class FileReaderService {
              Stream<String> lines = reader.lines()) {
             return new TextFileContent(lines.collect(Collectors.joining("\n")));
         } catch (IOException e) {
-            log.warn("Could not read file '{}'", path, e);
-            throw new RuntimeException("Can't read file", e);
+            log.warn("Can't read file '{}'", path, e);
+            throw new IOExceptionResponseException(HttpStatus.INTERNAL_SERVER_ERROR, path.toString());
         } catch (SecurityException e) {
-            log.warn("Could not read file '{}' because of SecurityException", path, e);
+            log.warn("Can't read file '{}' because of SecurityException", path, e);
             throw new FileAccessDeniedResponseException(HttpStatus.FORBIDDEN, path.toString());
         }
     }
