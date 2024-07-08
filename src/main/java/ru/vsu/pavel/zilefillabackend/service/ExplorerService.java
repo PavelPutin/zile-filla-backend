@@ -8,6 +8,7 @@ import ru.vsu.pavel.zilefillabackend.dto.FileMetadata;
 import ru.vsu.pavel.zilefillabackend.dto.FileSystemObjectDto;
 import ru.vsu.pavel.zilefillabackend.dto.FileSystemObjectType;
 import ru.vsu.pavel.zilefillabackend.errors.NoSuchFileResponseException;
+import ru.vsu.pavel.zilefillabackend.errors.NotDirectoryResponseException;
 
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -23,7 +24,7 @@ public class ExplorerService {
 
     private final FileSystemAccessService fileSystemAccessService;
 
-    public List<FileSystemObjectDto> changeDirectory(Path path) throws NotDirectoryException {
+    public List<FileSystemObjectDto> changeDirectory(Path path) {
         log.debug("FileSystemService.changeDirectory({})", path);
         // TODO: убрать дублирование кода
         var pathInSubTree = fileSystemAccessService.getPathInSubtree(path);
@@ -37,7 +38,7 @@ public class ExplorerService {
 
         if (!Files.isDirectory(pathInSubTree)) {
             log.warn("Try get not directory '{}'", path);
-            throw new NotDirectoryException(path.toString());
+            throw new NotDirectoryResponseException(HttpStatus.BAD_REQUEST, new NotDirectoryException(path.toString()));
         }
 
         var result = new ArrayList<FileSystemObjectDto>();
