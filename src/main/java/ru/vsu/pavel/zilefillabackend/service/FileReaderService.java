@@ -5,10 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.vsu.pavel.zilefillabackend.dto.TextFileContent;
-import ru.vsu.pavel.zilefillabackend.errors.IOExceptionResponseException;
-import ru.vsu.pavel.zilefillabackend.errors.FileAccessDeniedResponseException;
-import ru.vsu.pavel.zilefillabackend.errors.NotRegularFileResponseException;
-import ru.vsu.pavel.zilefillabackend.errors.NotTextFileResponseException;
+import ru.vsu.pavel.zilefillabackend.errors.*;
 import ru.vsu.pavel.zilefillabackend.util.NotRegularFileException;
 
 import java.io.BufferedReader;
@@ -35,7 +32,7 @@ public class FileReaderService {
         // TODO: убрать дублирование кода
         if (!Files.exists(pathInSubTree)) {
             log.warn("'{}' does not exist", path);
-            throw new NoSuchFileException(path.toString());
+            throw new NoSuchFileResponseException(HttpStatus.NOT_FOUND, new NoSuchFileException(path.toString()));
         }
 
         if (!Files.isRegularFile(pathInSubTree)) {
