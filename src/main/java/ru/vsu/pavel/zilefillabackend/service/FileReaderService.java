@@ -2,8 +2,10 @@ package ru.vsu.pavel.zilefillabackend.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.vsu.pavel.zilefillabackend.dto.TextFileContent;
+import ru.vsu.pavel.zilefillabackend.errors.NotRegularFileResponseException;
 import ru.vsu.pavel.zilefillabackend.util.NotRegularFileException;
 
 import java.io.BufferedReader;
@@ -21,7 +23,7 @@ public class FileReaderService {
 
     private final FileSystemAccessService fileSystemAccessService;
 
-    public TextFileContent getTextFileContent(Path path) throws NoSuchFileException, NotRegularFileException {
+    public TextFileContent getTextFileContent(Path path) throws NoSuchFileException {
         log.debug("FileReaderService.getTextFileContent({})", path);
         // TODO: убрать дублирование кода
         var pathInSubTree = fileSystemAccessService.getPathInSubtree(path);
@@ -35,7 +37,9 @@ public class FileReaderService {
 
         if (!Files.isRegularFile(pathInSubTree)) {
             log.warn("Try get not file '{}'", path);
-            throw new NotRegularFileException(path.toString());
+            throw new NotRegularFileResponseException(
+                    HttpStatus.BAD_REQUEST,
+                    new NotRegularFileException(path.toString()));
         }
 
         try {

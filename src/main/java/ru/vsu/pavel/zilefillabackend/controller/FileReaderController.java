@@ -25,7 +25,7 @@ public class FileReaderController {
     public ResponseEntity<TextFileContent> getFileContent(
             @PathVariable("path")
             String path
-    ) throws NoSuchFileException, NotRegularFileException {
+    ) throws NoSuchFileException {
         log.debug("FileReaderController.getFileContent({})", path);
         if (!path.isBlank()) {
             path = path.substring(1);
