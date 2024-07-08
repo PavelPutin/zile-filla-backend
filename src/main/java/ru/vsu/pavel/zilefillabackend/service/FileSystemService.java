@@ -1,8 +1,8 @@
 package ru.vsu.pavel.zilefillabackend.service;
 
 import jakarta.annotation.PostConstruct;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.vsu.pavel.zilefillabackend.dto.FileMetadata;
 import ru.vsu.pavel.zilefillabackend.dto.FileSystemObjectDto;
@@ -14,26 +14,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static ru.vsu.pavel.zilefillabackend.util.FileSystemUtils.getDirectorySizeBytes;
-import static ru.vsu.pavel.zilefillabackend.util.FileSystemUtils.getPathForRoot;
 
 @Service
+@AllArgsConstructor
 @Slf4j
+// TODO: переименовать на Explorer service
 public class FileSystemService {
-    @Value("${zilefilla.filesystem.root}")
-    public String root;
 
-    @PostConstruct
-    public void init() {
-        log.info("Init FileSystemService with root '{}'", root);
-    }
+    private final FileSystemAccessService fileSystemAccessService;
 
     public List<FileSystemObjectDto> changeDirectory(Path path) throws NotDirectoryException, NoSuchFileException {
-        log.debug("Change directory: {}", path);
-        var rootPath = Path.of(root);
-        log.debug("Root path: {}", rootPath);
-        var pathInSubTree = getPathForRoot(path, rootPath);
-        log.debug("Change directory path: {}", pathInSubTree);
+        log.debug("FileSystemService.changeDirectory({})", path);
+        // TODO: убрать дублирование кода
+        var pathInSubTree = fileSystemAccessService.getPathInSubtree(path);
+        log.debug("Change directory path in subtree: {}", pathInSubTree);
 
+        // TODO: убрать дублирование кода
         if (!Files.exists(pathInSubTree)) {
             log.warn("'{}' does not exist", path);
             throw new NoSuchFileException(path.toString());
