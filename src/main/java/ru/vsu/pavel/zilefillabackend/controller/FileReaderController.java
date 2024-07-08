@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.vsu.pavel.zilefillabackend.dto.TextFileContent;
 import ru.vsu.pavel.zilefillabackend.service.FileReaderService;
-import ru.vsu.pavel.zilefillabackend.util.NotRegularFileException;
 
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;

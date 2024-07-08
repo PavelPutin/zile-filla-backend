@@ -23,7 +23,7 @@ public class FileReaderService {
 
     private final FileSystemAccessService fileSystemAccessService;
 
-    public TextFileContent getTextFileContent(Path path) throws NoSuchFileException {
+    public TextFileContent getTextFileContent(Path path) {
         log.debug("FileReaderService.getTextFileContent({})", path);
         // TODO: убрать дублирование кода
         var pathInSubTree = fileSystemAccessService.getPathInSubtree(path);
