@@ -23,10 +23,14 @@ public class FileSystemAccessService {
         log.info("Init FileSystemAccessService with root '{}'", root);
         rootPath = Path.of(root);
         if (!rootPath.isAbsolute()) {
-            throw new IllegalArgumentException(root + " is not absolute");
+            var e = new IllegalArgumentException(root + " is not absolute");
+            log.error("Root path is not absolute: {}", root, e);
+            throw e;
         }
         if (!Files.exists(rootPath)) {
-            throw new IllegalArgumentException(root + " does not exist");
+            var e = new IllegalArgumentException(root + " does not exist");
+            log.error("Root path does not exist: {}", root, e);
+            throw e;
         }
     }
 
