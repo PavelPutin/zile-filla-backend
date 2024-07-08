@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.vsu.pavel.zilefillabackend.dto.TextFileContent;
 import ru.vsu.pavel.zilefillabackend.errors.NotRegularFileResponseException;
+import ru.vsu.pavel.zilefillabackend.errors.NotTextFileResponseException;
 import ru.vsu.pavel.zilefillabackend.util.NotRegularFileException;
 
 import java.io.BufferedReader;
@@ -45,11 +46,13 @@ public class FileReaderService {
         try {
             if (!Files.probeContentType(pathInSubTree).startsWith("text/")) {
                 log.warn("'{}' is not a text file", path);
-                throw new IllegalArgumentException("Not a text file");
+                throw new NotTextFileResponseException(HttpStatus.BAD_REQUEST, path.toString());
             }
         } catch (IOException e) {
-            log.warn("Could not check file type '{}'", path, e);
+            log.warn("Could not check file type '{}' because of IOException", path, e);
             throw new RuntimeException("Can't check file type", e);
+        } catch (SecurityException e) {
+            log.warn("Could not check file type '{}' because of SecurityException", path, e);
         }
 
         try (BufferedReader reader = Files.newBufferedReader(pathInSubTree);
