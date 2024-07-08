@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.vsu.pavel.zilefillabackend.dto.ErrorDto;
 import ru.vsu.pavel.zilefillabackend.dto.FileSystemObjectDto;
-import ru.vsu.pavel.zilefillabackend.service.FileSystemService;
+import ru.vsu.pavel.zilefillabackend.service.ExplorerService;
 
 import java.nio.file.InvalidPathException;
 import java.nio.file.NoSuchFileException;
@@ -22,7 +22,7 @@ import java.util.Optional;
 @Slf4j
 public class ExplorerController {
 
-    private final FileSystemService fileSystemService;
+    private final ExplorerService explorerService;
 
     @GetMapping(value = { "", "/", "/{*path}" })
     public ResponseEntity<List<FileSystemObjectDto>> changeDirectory(@PathVariable(value = "path") Optional<String> path) throws NotDirectoryException, NoSuchFileException {
@@ -32,7 +32,7 @@ public class ExplorerController {
         if (!actualPath.isEmpty()) {
             actualPath = actualPath.substring(1);
         }
-        return ResponseEntity.ok(fileSystemService.changeDirectory(Paths.get(actualPath)));
+        return ResponseEntity.ok(explorerService.changeDirectory(Paths.get(actualPath)));
     }
 
     @ExceptionHandler({InvalidPathException.class, NotDirectoryException.class})

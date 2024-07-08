@@ -1,6 +1,5 @@
 package ru.vsu.pavel.zilefillabackend.service;
 
-import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,8 +17,7 @@ import static ru.vsu.pavel.zilefillabackend.util.FileSystemUtils.getDirectorySiz
 @Service
 @AllArgsConstructor
 @Slf4j
-// TODO: переименовать на Explorer service
-public class FileSystemService {
+public class ExplorerService {
 
     private final FileSystemAccessService fileSystemAccessService;
 
