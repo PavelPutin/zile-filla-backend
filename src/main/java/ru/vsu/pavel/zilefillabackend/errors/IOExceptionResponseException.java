@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.web.ErrorResponseException;
 
 import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
+import static ru.vsu.pavel.zilefillabackend.util.FileSystemUtils.stringPathToUri;
 
 public class IOExceptionResponseException extends ErrorResponseException {
     public IOExceptionResponseException(HttpStatusCode status, String file) {
@@ -13,7 +13,6 @@ public class IOExceptionResponseException extends ErrorResponseException {
         setType(URI.create("/zile-filla/internal-io-exception"));
         setTitle("Can't check file type");
         setDetail("Internal IOException occurred");
-        Path instance = Paths.get("/", file);
-        setInstance(instance.toUri());
+        setInstance(stringPathToUri(file));
     }
 }

@@ -9,6 +9,8 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static ru.vsu.pavel.zilefillabackend.util.FileSystemUtils.stringPathToUri;
+
 @Slf4j
 public class NotRegularFileResponseException extends ErrorResponseException {
     public NotRegularFileResponseException(HttpStatusCode status, NotRegularFileException cause) {
@@ -17,6 +19,6 @@ public class NotRegularFileResponseException extends ErrorResponseException {
         setTitle("Not regular file");
         setDetail("The file isn't a regular file (maybe, it's a directory or symbolic link)");
         Path instance = Paths.get("/", cause.getFile());
-        setInstance(instance.toUri());
+        setInstance(stringPathToUri(cause.getFile()));
     }
 }

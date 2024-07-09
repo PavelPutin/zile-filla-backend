@@ -3,6 +3,7 @@ package ru.vsu.pavel.zilefillabackend.util;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -43,5 +44,9 @@ public class FileSystemUtils {
             log.warn("Can't get size of '{}'", path, e);
             return 0;
         }
+    }
+
+    public static URI stringPathToUri(final String path) {
+        return URI.create("/" + path.replaceAll("\\\\", "/"));
     }
 }
