@@ -16,7 +16,6 @@ public class NotDirectoryResponseException  extends ErrorResponseException {
         setType(URI.create("/zile-filla/not-directory"));
         setTitle("Not a directory");
         setDetail("The file isn't a directory");
-        Path instance = Paths.get("/", cause.getFile());
         setInstance(stringPathToUri(cause.getFile()));
     }
 }

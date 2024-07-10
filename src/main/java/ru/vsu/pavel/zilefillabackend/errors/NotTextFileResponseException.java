@@ -10,9 +10,9 @@ import static ru.vsu.pavel.zilefillabackend.util.FileSystemUtils.stringPathToUri
 public class NotTextFileResponseException extends ErrorResponseException {
     public NotTextFileResponseException(HttpStatusCode status, String file) {
         super(status);
-        setType(URI.create("/zile-filla/not-regular-file"));
-        setTitle("Not regular file");
-        setDetail("The file isn't a regular file (maybe, it's a directory or symbolic link)");
+        setType(URI.create("/zile-filla/not-text-file"));
+        setTitle("Not text file");
+        setDetail("The file isn't a text file");
         setInstance(stringPathToUri(file));
     }
 }
