@@ -63,6 +63,18 @@ public class ExplorerService {
             log.error(e.getMessage(), e);
         }
         log.debug("Change directory result: {}", result);
+        result.sort((a, b) -> {
+
+            if (a.type().equals(FileSystemObjectType.DIRECTORY.dtoValue) && b.type().equals(FileSystemObjectType.FILE.dtoValue)) {
+                return -1;
+            }
+
+            if (a.type().equals(FileSystemObjectType.FILE.dtoValue) && b.type().equals(FileSystemObjectType.DIRECTORY.dtoValue)) {
+                return 1;
+            }
+
+            return a.name().compareTo(b.name());
+        });
         return result;
     }
 }
