@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.vsu.pavel.zilefillabackend.dto.TextFileContent;
 import ru.vsu.pavel.zilefillabackend.service.FileReaderService;
 
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 
 @RestController
@@ -24,7 +23,7 @@ public class FileReaderController {
     public ResponseEntity<TextFileContent> getFileContent(
             @PathVariable("path")
             String path
-    ) throws NoSuchFileException {
+    ) {
         log.debug("FileReaderController.getFileContent({})", path);
         if (!path.isBlank()) {
             path = path.substring(1);
