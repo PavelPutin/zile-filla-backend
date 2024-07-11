@@ -10,6 +10,7 @@ import ru.vsu.pavel.zilefillabackend.util.NotRegularFileException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -58,12 +59,12 @@ public class FileReaderService {
         try (BufferedReader reader = Files.newBufferedReader(pathInSubTree);
              Stream<String> lines = reader.lines()) {
             return new TextFileContent(lines.collect(Collectors.joining("\n")));
+        } catch (AccessDeniedException e) {
+            log.warn("Can't read file '{}' because of SecurityException", path, e);
+            throw new FileAccessDeniedResponseException(HttpStatus.FORBIDDEN, path.toString());
         } catch (IOException e) {
             log.warn("Can't read file '{}'", path, e);
             throw new IOExceptionResponseException(HttpStatus.INTERNAL_SERVER_ERROR, path.toString());
-        } catch (SecurityException e) {
-            log.warn("Can't read file '{}' because of SecurityException", path, e);
-            throw new FileAccessDeniedResponseException(HttpStatus.FORBIDDEN, path.toString());
         }
     }
 }
