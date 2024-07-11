@@ -7,9 +7,12 @@ import org.springframework.stereotype.Service;
 import ru.vsu.pavel.zilefillabackend.dto.FileMetadata;
 import ru.vsu.pavel.zilefillabackend.dto.FileSystemObjectDto;
 import ru.vsu.pavel.zilefillabackend.dto.FileSystemObjectType;
+import ru.vsu.pavel.zilefillabackend.errors.FileAccessDeniedResponseException;
+import ru.vsu.pavel.zilefillabackend.errors.IOExceptionResponseException;
 import ru.vsu.pavel.zilefillabackend.errors.NoSuchFileResponseException;
 import ru.vsu.pavel.zilefillabackend.errors.NotDirectoryResponseException;
 
+import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
@@ -46,9 +49,10 @@ public class ExplorerService {
             for (Path file : stream) {
                 log.debug("File: {}", file);
                 var attr = Files.readAttributes(file, BasicFileAttributes.class);
-                long size = getDirectorySizeBytes(file);
+                var sizeData = getDirectorySizeBytes(file);
                 var metadata = new FileMetadata(
-                        size,
+                        sizeData.value(),
+                        sizeData.accurate(),
                         attr.creationTime().toInstant(),
                         attr.lastAccessTime().toInstant(),
                         attr.lastModifiedTime().toInstant()
@@ -59,8 +63,12 @@ public class ExplorerService {
                         metadata
                 ));
             }
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
+        } catch (AccessDeniedException e) {
+            log.warn(e.getMessage(), e);
+            throw new FileAccessDeniedResponseException(HttpStatus.FORBIDDEN, path.toString());
+        } catch (IOException e) {
+            log.warn(e.getMessage(), e);
+            throw new IOExceptionResponseException(HttpStatus.INTERNAL_SERVER_ERROR, path.toString());
         }
         log.debug("Change directory result: {}", result);
         result.sort((a, b) -> {

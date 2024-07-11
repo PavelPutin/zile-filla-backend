@@ -15,6 +15,7 @@ import static java.nio.file.FileVisitResult.CONTINUE;
 @Slf4j
 public class DirectorySizeCalculator extends SimpleFileVisitor<Path> {
     private long size = 0;
+    private boolean accurate = true;
 
     @Override
     public FileVisitResult visitFile(Path file,
@@ -27,6 +28,7 @@ public class DirectorySizeCalculator extends SimpleFileVisitor<Path> {
     public FileVisitResult visitFileFailed(Path file,
                                            IOException exc) {
         log.error(exc.getMessage(), exc);
+        accurate = false;
         return CONTINUE;
     }
 }

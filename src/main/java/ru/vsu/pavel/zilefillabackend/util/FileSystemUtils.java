@@ -30,23 +30,22 @@ public class FileSystemUtils {
     }
 
     /**
-     * Вычисляет размер папки с учётом всех её потомков
+     * Вычисляет размер файла или папки с учётом всех её потомков. Если не удалось получить доступ возвращает специальное значение -1
      * @param path директория, размер которой вычисляется
-     * @return размер папки в байтах
+     * @return размер папки в байтах или -1, если не удалось получить доступ
      */
-    public static long getDirectorySizeBytes(final Path path) {
+    public static DirectorySize getDirectorySizeBytes(final Path path) throws IOException {
         var calculator = new DirectorySizeCalculator();
         try {
             Files.walkFileTree(path, calculator);
-            return calculator.getSize();
-        } catch (final SecurityException e) {
-            log.warn("Deny access to '{}'", path, e);
-            return 0;
-        } catch (final IOException e) {
-            log.warn("Can't get size of '{}'", path, e);
-            return 0;
+            return new DirectorySize(calculator.getSize(), calculator.isAccurate());
+        } catch (SecurityException e) {
+            log.warn("Security exception", e);
+            return new DirectorySize(-1, false);
         }
     }
+
+    public record DirectorySize(long value, boolean accurate) {}
 
     public static URI stringPathToUri(final String path) {
         return URI.create("/" + path.replaceAll("\\\\", "/").replaceAll(" ", "%20"));

@@ -11,7 +11,7 @@ public class IOExceptionResponseException extends ErrorResponseException {
     public IOExceptionResponseException(HttpStatusCode status, String file) {
         super(status);
         setType(URI.create("/zile-filla/internal-io-exception"));
-        setTitle("Can't check file type");
+        setTitle("Internal IOException");
         setDetail("Internal IOException occurred");
         setInstance(stringPathToUri(file));
     }
