@@ -48,11 +48,13 @@ public class ExplorerService {
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(pathInSubTree)) {
             for (Path file : stream) {
                 log.debug("File: {}", file);
+                log.debug("File '{file}' readable status {}", Files.isReadable(file));
                 var attr = Files.readAttributes(file, BasicFileAttributes.class);
                 var sizeData = getDirectorySizeBytes(file);
                 var metadata = new FileMetadata(
                         sizeData.value(),
                         sizeData.accurate(),
+                        Files.isReadable(file),
                         attr.creationTime().toInstant(),
                         attr.lastAccessTime().toInstant(),
                         attr.lastModifiedTime().toInstant()
