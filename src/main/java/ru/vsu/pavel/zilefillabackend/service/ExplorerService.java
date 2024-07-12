@@ -7,10 +7,8 @@ import org.springframework.stereotype.Service;
 import ru.vsu.pavel.zilefillabackend.dto.FileMetadata;
 import ru.vsu.pavel.zilefillabackend.dto.FileSystemObjectDto;
 import ru.vsu.pavel.zilefillabackend.dto.FileSystemObjectType;
-import ru.vsu.pavel.zilefillabackend.errors.FileAccessDeniedResponseException;
-import ru.vsu.pavel.zilefillabackend.errors.IOExceptionResponseException;
-import ru.vsu.pavel.zilefillabackend.errors.NoSuchFileResponseException;
-import ru.vsu.pavel.zilefillabackend.errors.NotDirectoryResponseException;
+import ru.vsu.pavel.zilefillabackend.dto.RenameDto;
+import ru.vsu.pavel.zilefillabackend.errors.*;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -86,5 +84,41 @@ public class ExplorerService {
             return a.name().compareTo(b.name());
         });
         return result;
+    }
+
+    public void rename(Path source, RenameDto renameDto) {
+        log.debug("FileSystemService.rename({})", source);
+
+        // TODO: убрать дублирование кода
+        var pathInSubTree = fileSystemAccessService.getPathInSubtree(source);
+        log.debug("Rename source path in subtree '{}'", pathInSubTree);
+
+        // TODO: убрать дублирование кода
+        if (!Files.exists(pathInSubTree)) {
+            log.warn("'{}' does not exist", source);
+            throw new NoSuchFileResponseException(HttpStatus.NOT_FOUND, new NoSuchFileException(source.toString()));
+        }
+
+        var target = pathInSubTree.resolveSibling(renameDto.newName());
+        if (Files.exists(target)) {
+            log.warn("'{}' already exists", target);
+            throw new FileAlreadyExistsResponseException(HttpStatus.CONFLICT, source.toString());
+        }
+        log.debug("Rename '{}' to '{}'", pathInSubTree, target);
+        try {
+            Files.move(pathInSubTree, target, StandardCopyOption.ATOMIC_MOVE);
+        } catch (NoSuchFileException e) {
+            log.warn("'{}' doesn't exist", source, e);
+            throw new NoSuchFileResponseException(HttpStatus.NOT_FOUND, e);
+        } catch (AccessDeniedException e) {
+            log.warn("'{}' is not accessible", source, e);
+            throw new FileAccessDeniedResponseException(HttpStatus.FORBIDDEN, source.toString());
+        } catch (DirectoryNotEmptyException e) {
+            log.warn("'{}' is not an empty directory", source, e);
+            throw new DirectoryNotEmptyResponseException(HttpStatus.CONFLICT, source.toString());
+        } catch (IOException e) {
+            log.warn("'{}' is not readable", source, e);
+            throw new IOExceptionResponseException(HttpStatus.INTERNAL_SERVER_ERROR, source.toString());
+        }
     }
 }
