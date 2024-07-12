@@ -7,8 +7,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.vsu.pavel.zilefillabackend.dto.FileSystemObjectDto;
 import ru.vsu.pavel.zilefillabackend.dto.RenameDto;
+import ru.vsu.pavel.zilefillabackend.errors.FileAccessDeniedResponseException;
+import ru.vsu.pavel.zilefillabackend.errors.NoSuchFileResponseException;
 import ru.vsu.pavel.zilefillabackend.service.ExplorerService;
 
+import java.io.FileNotFoundException;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +47,12 @@ public class ExplorerController {
             RenameDto renameDto
     ) {
         log.debug("ExplorerController.rename({})", path);
-        var actualPath = Paths.get(path.substring(1));
+        if (path.isBlank() || path.equals("/")) {
+            throw new FileAccessDeniedResponseException(HttpStatus.FORBIDDEN, "");
+        }
+        var actualPath = Paths.get(
+                path.startsWith("/") ? path.substring(1) : path
+        );
         explorerService.rename(actualPath, renameDto);
     }
 }
