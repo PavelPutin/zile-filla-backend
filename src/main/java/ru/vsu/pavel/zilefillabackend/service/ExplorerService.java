@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.vsu.pavel.zilefillabackend.dto.*;
 import ru.vsu.pavel.zilefillabackend.errors.*;
 import ru.vsu.pavel.zilefillabackend.util.CopyVisitor;
+import ru.vsu.pavel.zilefillabackend.util.MoveVisitor;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -158,7 +159,7 @@ public class ExplorerService {
         if (fileSystemAccessService.isRoot(pathInSubTree)) {
             throw new FileAccessDeniedResponseException(HttpStatus.FORBIDDEN, "");
         }
-        log.debug("Move source path in subtree '{}'", pathInSubTree);
+        log.debug("Copy source path in subtree '{}'", pathInSubTree);
 
         // TODO: убрать дублирование кода
         if (!Files.exists(pathInSubTree)) {
@@ -167,7 +168,7 @@ public class ExplorerService {
         }
 
         var targetInSubTree = fileSystemAccessService.getPathInSubtree(target);
-        log.debug("Move target path in subtree '{}'", targetInSubTree);
+        log.debug("Copy target path in subtree '{}'", targetInSubTree);
 
         // TODO: убрать дублирование кода
         if (!Files.exists(targetInSubTree)) {
@@ -208,6 +209,52 @@ public class ExplorerService {
         }
     }
 
-    public void move(Path actualPath, Path target) {
+    public void move(Path source, Path target) {
+        log.debug("FileSystemService.move({})", source);
+
+        // TODO: убрать дублирование кода
+        var pathInSubTree = fileSystemAccessService.getPathInSubtree(source);
+        if (fileSystemAccessService.isRoot(pathInSubTree)) {
+            throw new FileAccessDeniedResponseException(HttpStatus.FORBIDDEN, "");
+        }
+        log.debug("Move source path in subtree '{}'", pathInSubTree);
+
+        // TODO: убрать дублирование кода
+        if (!Files.exists(pathInSubTree)) {
+            log.warn("'{}' does not exist", source);
+            throw new NoSuchFileResponseException(HttpStatus.NOT_FOUND, new NoSuchFileException(source.toString()));
+        }
+
+        var targetInSubTree = fileSystemAccessService.getPathInSubtree(target);
+        log.debug("Move target path in subtree '{}'", targetInSubTree);
+
+        // TODO: убрать дублирование кода
+        if (!Files.exists(targetInSubTree)) {
+            log.warn("'{}' does not exist", target);
+            throw new NoSuchFileResponseException(HttpStatus.NOT_FOUND, new NoSuchFileException(target.toString()));
+        }
+
+        if (!Files.isDirectory(targetInSubTree)) {
+            log.warn("'{}' is not a directory", target);
+            throw new NotDirectoryResponseException(HttpStatus.BAD_REQUEST, target.toString());
+        }
+
+        try {
+            targetInSubTree = targetInSubTree.resolve(pathInSubTree.getName(pathInSubTree.getNameCount() - 1));
+            log.debug("Move '{}' to '{}'", pathInSubTree, targetInSubTree);
+            Files.move(pathInSubTree, targetInSubTree);
+        } catch (NoSuchFileException e) {
+            log.warn("'{}' doesn't exist", source, e);
+            throw new NoSuchFileResponseException(HttpStatus.NOT_FOUND, e);
+        } catch (AccessDeniedException e) {
+            log.warn("'{}' is not accessible", source, e);
+            throw new FileAccessDeniedResponseException(HttpStatus.FORBIDDEN, source.toString());
+        } catch (DirectoryNotEmptyException e) {
+            log.warn("'{}' is not an empty directory", source, e);
+            throw new DirectoryNotEmptyResponseException(HttpStatus.CONFLICT, source.toString());
+        } catch (IOException e) {
+            log.warn("'{}' is not readable", source, e);
+            throw new IOExceptionResponseException(HttpStatus.INTERNAL_SERVER_ERROR, source.toString());
+        }
     }
 }
