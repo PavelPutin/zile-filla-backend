@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import ru.vsu.pavel.zilefillabackend.util.FileSystemUtils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,7 +13,7 @@ import static ru.vsu.pavel.zilefillabackend.util.FileSystemUtils.getPathForRoot;
 
 @Service
 @Slf4j
-public class FileSystemAccessService {
+public class FileSystemAccessService extends FileSystemUtils {
 
     @Value("${zilefilla.filesystem.root}")
     private String root;

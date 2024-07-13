@@ -6,11 +6,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.vsu.pavel.zilefillabackend.dto.*;
 import ru.vsu.pavel.zilefillabackend.errors.*;
+import ru.vsu.pavel.zilefillabackend.util.CopyVisitor;
 
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import static ru.vsu.pavel.zilefillabackend.util.FileSystemUtils.*;
@@ -123,7 +125,7 @@ public class ExplorerService {
         log.debug("FileSystemService.delete({})", path);
 
         var pathInSubTree = fileSystemAccessService.getPathInSubtree(path);
-        if (fileSystemAccessService.isRoot(path)) {
+        if (fileSystemAccessService.isRoot(pathInSubTree)) {
             throw new FileAccessDeniedResponseException(HttpStatus.FORBIDDEN, "");
         }
 
@@ -146,5 +148,66 @@ public class ExplorerService {
             log.warn("'{}' is not readable", path, e);
             throw new IOExceptionResponseException(HttpStatus.INTERNAL_SERVER_ERROR, path.toString());
         }
+    }
+
+    public void copy(Path source, Path target) {
+        log.debug("FileSystemService.copy({})", source);
+
+        // TODO: убрать дублирование кода
+        var pathInSubTree = fileSystemAccessService.getPathInSubtree(source);
+        if (fileSystemAccessService.isRoot(pathInSubTree)) {
+            throw new FileAccessDeniedResponseException(HttpStatus.FORBIDDEN, "");
+        }
+        log.debug("Move source path in subtree '{}'", pathInSubTree);
+
+        // TODO: убрать дублирование кода
+        if (!Files.exists(pathInSubTree)) {
+            log.warn("'{}' does not exist", source);
+            throw new NoSuchFileResponseException(HttpStatus.NOT_FOUND, new NoSuchFileException(source.toString()));
+        }
+
+        var targetInSubTree = fileSystemAccessService.getPathInSubtree(target);
+        log.debug("Move target path in subtree '{}'", targetInSubTree);
+
+        // TODO: убрать дублирование кода
+        if (!Files.exists(targetInSubTree)) {
+            log.warn("'{}' does not exist", target);
+            throw new NoSuchFileResponseException(HttpStatus.NOT_FOUND, new NoSuchFileException(target.toString()));
+        }
+
+        if (!Files.isDirectory(targetInSubTree)) {
+            log.warn("'{}' is not a directory", target);
+            throw new NotDirectoryResponseException(HttpStatus.BAD_REQUEST, target.toString());
+        }
+
+        try {
+            if (!Files.isDirectory(pathInSubTree)) {
+                log.debug("Copy file '{}' to '{}'", pathInSubTree, targetInSubTree);
+                targetInSubTree = targetInSubTree.resolve(pathInSubTree.getFileName());
+                Files.copy(pathInSubTree, targetInSubTree, StandardCopyOption.REPLACE_EXISTING);
+            } else {
+                log.debug("Copy directory '{}' to '{}'", pathInSubTree, targetInSubTree);
+                EnumSet<FileVisitOption> options
+                        = EnumSet.of(FileVisitOption.FOLLOW_LINKS);
+                targetInSubTree = targetInSubTree.resolve(pathInSubTree.getName(pathInSubTree.getNameCount() - 1));
+                var copier = new CopyVisitor(pathInSubTree, targetInSubTree);
+                Files.walkFileTree(pathInSubTree, options, Integer.MAX_VALUE, copier);
+            }
+        } catch (NoSuchFileException e) {
+            log.warn("'{}' doesn't exist", source, e);
+            throw new NoSuchFileResponseException(HttpStatus.NOT_FOUND, e);
+        } catch (AccessDeniedException e) {
+            log.warn("'{}' is not accessible", source, e);
+            throw new FileAccessDeniedResponseException(HttpStatus.FORBIDDEN, source.toString());
+        } catch (DirectoryNotEmptyException e) {
+            log.warn("'{}' is not an empty directory", source, e);
+            throw new DirectoryNotEmptyResponseException(HttpStatus.CONFLICT, source.toString());
+        } catch (IOException e) {
+            log.warn("'{}' is not readable", source, e);
+            throw new IOExceptionResponseException(HttpStatus.INTERNAL_SERVER_ERROR, source.toString());
+        }
+    }
+
+    public void move(Path actualPath, Path target) {
     }
 }

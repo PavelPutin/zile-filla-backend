@@ -12,10 +12,14 @@ import static ru.vsu.pavel.zilefillabackend.util.FileSystemUtils.stringPathToUri
 
 public class NotDirectoryResponseException  extends ErrorResponseException {
     public NotDirectoryResponseException(HttpStatusCode status, NotDirectoryException cause) {
-        super(status, cause);
+        this(status, cause.getFile());
+    }
+
+    public NotDirectoryResponseException(HttpStatusCode status, String instance) {
+        super(status);
         setType(URI.create("/zile-filla/not-directory"));
         setTitle("Not a directory");
         setDetail("The file isn't a directory");
-        setInstance(stringPathToUri(cause.getFile()));
+        setInstance(stringPathToUri(instance));
     }
 }

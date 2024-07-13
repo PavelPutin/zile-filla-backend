@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.vsu.pavel.zilefillabackend.dto.FileSystemObjectDto;
+import ru.vsu.pavel.zilefillabackend.dto.MoveCopyDto;
 import ru.vsu.pavel.zilefillabackend.dto.RenameDto;
 import ru.vsu.pavel.zilefillabackend.errors.FileAccessDeniedResponseException;
 import ru.vsu.pavel.zilefillabackend.service.ExplorerService;
@@ -66,5 +67,26 @@ public class ExplorerController {
                 path.startsWith("/") ? path.substring(1) : path
         );
         explorerService.delete(actualPath);
+    }
+
+    @PostMapping("/{*path}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void moveOrCopy(
+            @PathVariable(value = "path")
+            String path,
+            @RequestBody
+            MoveCopyDto moveCopyDto
+    ) {
+        log.debug("ExplorerController.moveOrCopy({}, {}, {})", path, moveCopyDto.actionType(), moveCopyDto.target());
+        var actualPath = Paths.get(
+                path.startsWith("/") ? path.substring(1) : path
+        );
+        var target = Paths.get(
+                moveCopyDto.target().startsWith("/") ? moveCopyDto.target().substring(1) : moveCopyDto.target()
+        );
+        switch (moveCopyDto.actionType()) {
+            case COPY -> explorerService.copy(actualPath, target);
+            case MOVE -> explorerService.move(actualPath, target);
+        }
     }
 }
