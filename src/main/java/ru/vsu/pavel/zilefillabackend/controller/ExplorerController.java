@@ -62,11 +62,6 @@ public class ExplorerController {
             String path
     ) {
         log.debug("ExplorerController.delete({})", path);
-        try {
-            Thread.sleep(Duration.ofSeconds(5));
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
         var actualPath = Paths.get(
                 path.startsWith("/") ? path.substring(1) : path
         );
