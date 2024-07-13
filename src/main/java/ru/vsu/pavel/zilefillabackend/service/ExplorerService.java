@@ -4,10 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import ru.vsu.pavel.zilefillabackend.dto.FileMetadata;
-import ru.vsu.pavel.zilefillabackend.dto.FileSystemObjectDto;
-import ru.vsu.pavel.zilefillabackend.dto.FileSystemObjectType;
-import ru.vsu.pavel.zilefillabackend.dto.RenameDto;
+import ru.vsu.pavel.zilefillabackend.dto.*;
 import ru.vsu.pavel.zilefillabackend.errors.*;
 
 import java.io.IOException;
@@ -16,7 +13,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ru.vsu.pavel.zilefillabackend.util.FileSystemUtils.getDirectorySizeBytes;
+import static ru.vsu.pavel.zilefillabackend.util.FileSystemUtils.*;
 
 @Service
 @AllArgsConstructor
@@ -119,6 +116,35 @@ public class ExplorerService {
         } catch (IOException e) {
             log.warn("'{}' is not readable", source, e);
             throw new IOExceptionResponseException(HttpStatus.INTERNAL_SERVER_ERROR, source.toString());
+        }
+    }
+
+    public void delete(Path path) {
+        log.debug("FileSystemService.delete({})", path);
+
+        var pathInSubTree = fileSystemAccessService.getPathInSubtree(path);
+        if (fileSystemAccessService.isRoot(path)) {
+            throw new FileAccessDeniedResponseException(HttpStatus.FORBIDDEN, "");
+        }
+
+        try {
+            if (!checkAccessForDelete(pathInSubTree)) {
+                log.warn("'{}' has not accessible file", path);
+                throw new AccessDeniedException("");
+            }
+            deleteDirectory(pathInSubTree);
+        } catch (NoSuchFileException e) {
+            log.warn("'{}' does not exist", path);
+            throw new NoSuchFileResponseException(HttpStatus.NOT_FOUND, new NoSuchFileException(path.toString()));
+        } catch (AccessDeniedException | SecurityException e) {
+            log.warn("'{}' is not accessible", path, e);
+            throw new FileAccessDeniedResponseException(HttpStatus.FORBIDDEN, path.toString());
+        } catch (DirectoryNotEmptyException e) {
+            log.warn("'{}' is not an empty directory", path, e);
+            throw new DirectoryNotEmptyResponseException(HttpStatus.CONFLICT, path.toString());
+        } catch (IOException e) {
+            log.warn("'{}' is not readable", path, e);
+            throw new IOExceptionResponseException(HttpStatus.INTERNAL_SERVER_ERROR, path.toString());
         }
     }
 }

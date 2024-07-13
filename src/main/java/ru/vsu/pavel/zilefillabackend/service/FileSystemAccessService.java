@@ -46,4 +46,14 @@ public class FileSystemAccessService {
 
         return pathInSubTree;
     }
+
+
+    /**
+     * Проверяет, совпадает ли переданный путь с корнем публикуемого поддерева
+     * @param path проверяемый путь
+     * @return true если путь совпадает с корнем поддерева, иначе false
+     */
+    public boolean isRoot(final Path path) {
+        return path.equals(rootPath);
+    }
 }

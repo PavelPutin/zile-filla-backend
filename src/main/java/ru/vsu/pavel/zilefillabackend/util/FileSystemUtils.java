@@ -8,6 +8,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 
 @Slf4j
 public class FileSystemUtils {
@@ -43,6 +44,17 @@ public class FileSystemUtils {
             log.warn("Security exception", e);
             return new DirectorySize(-1, false);
         }
+    }
+
+    public static boolean checkAccessForDelete(final Path path) throws IOException {
+        var checker = new AccessForAllChildrenChecker();
+        Files.walkFileTree(path, checker);
+        return checker.isResult();
+    }
+
+    public static void deleteDirectory(final Path path) throws IOException {
+        var deleter = new DirectoryDeleter();
+        Files.walkFileTree(path, deleter);
     }
 
     public record DirectorySize(long value, boolean accurate) {}
