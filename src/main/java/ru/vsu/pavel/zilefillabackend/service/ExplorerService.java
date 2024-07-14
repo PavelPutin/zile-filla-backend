@@ -4,10 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import ru.vsu.pavel.zilefillabackend.dto.*;
+import ru.vsu.pavel.zilefillabackend.dto.FileMetadata;
+import ru.vsu.pavel.zilefillabackend.dto.FileSystemObjectDto;
+import ru.vsu.pavel.zilefillabackend.dto.FileSystemObjectType;
+import ru.vsu.pavel.zilefillabackend.dto.RenameDto;
 import ru.vsu.pavel.zilefillabackend.errors.*;
 import ru.vsu.pavel.zilefillabackend.util.CopyVisitor;
-import ru.vsu.pavel.zilefillabackend.util.MoveVisitor;
 
 import java.io.IOException;
 import java.nio.file.*;

@@ -12,12 +12,11 @@ import ru.vsu.pavel.zilefillabackend.errors.FileAccessDeniedResponseException;
 import ru.vsu.pavel.zilefillabackend.service.ExplorerService;
 
 import java.nio.file.Paths;
-import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/explorer")
+@RequestMapping("/v1/explorer")
 @AllArgsConstructor
 @Slf4j
 public class ExplorerController {

@@ -5,8 +5,6 @@ import org.springframework.web.ErrorResponseException;
 
 import java.net.URI;
 import java.nio.file.NotDirectoryException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static ru.vsu.pavel.zilefillabackend.util.FileSystemUtils.stringPathToUri;
 

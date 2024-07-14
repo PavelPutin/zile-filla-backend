@@ -9,8 +9,6 @@ import ru.vsu.pavel.zilefillabackend.util.FileSystemUtils;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static ru.vsu.pavel.zilefillabackend.util.FileSystemUtils.getPathForRoot;
-
 @Service
 @Slf4j
 public class FileSystemAccessService extends FileSystemUtils {

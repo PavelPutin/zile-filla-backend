@@ -13,7 +13,7 @@ import ru.vsu.pavel.zilefillabackend.service.FileReaderService;
 import java.nio.file.Paths;
 
 @RestController
-@RequestMapping("/view")
+@RequestMapping("/v1/view")
 @AllArgsConstructor
 @Slf4j
 public class FileReaderController {
