@@ -93,7 +93,8 @@ public class FileSystemAccessService extends FileSystemUtils {
     }
 
     public void isTextFile(final Path inSubTree, final Path original) throws IOException {
-        if (!Files.probeContentType(inSubTree).startsWith("text/")) {
+        var contentType = Files.probeContentType(inSubTree);
+        if (contentType == null || !Files.probeContentType(inSubTree).startsWith("text/")) {
             log.warn("'{}' is not a text file", original);
             throw new NotTextFileResponseException(HttpStatus.BAD_REQUEST, original.toString());
         }
