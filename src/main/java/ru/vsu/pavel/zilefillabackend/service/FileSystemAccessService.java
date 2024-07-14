@@ -3,10 +3,16 @@ package ru.vsu.pavel.zilefillabackend.service;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import ru.vsu.pavel.zilefillabackend.errors.*;
 import ru.vsu.pavel.zilefillabackend.util.FileSystemUtils;
+import ru.vsu.pavel.zilefillabackend.util.NotRegularFileException;
 
+import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 
 @Service
@@ -54,5 +60,50 @@ public class FileSystemAccessService extends FileSystemUtils {
      */
     public boolean isRoot(final Path path) {
         return path.equals(rootPath);
+    }
+
+    public void exists(final Path inSubTree, final Path original) {
+        if (!Files.exists(inSubTree)) {
+            log.warn("'{}' does not exist", inSubTree);
+            throw new NoSuchFileResponseException(HttpStatus.NOT_FOUND, new NoSuchFileException(original.toString()));
+        }
+    }
+
+    public void notExists(final Path inSubTree, final Path original) {
+        if (Files.exists(inSubTree)) {
+            log.warn("'{}' already exists", inSubTree);
+            throw new FileAlreadyExistsResponseException(HttpStatus.CONFLICT, original.toString());
+        }
+    }
+
+    public void isDirectory(final Path inSubTree, final Path original) {
+        if (!Files.isDirectory(inSubTree)) {
+            log.warn("Try get not directory '{}'", inSubTree);
+            throw new NotDirectoryResponseException(HttpStatus.BAD_REQUEST, new NotDirectoryException(original.toString()));
+        }
+    }
+
+    public void isRegularFile(final Path inSubTree, final Path original) {
+        if (!Files.isRegularFile(inSubTree)) {
+            log.warn("Try get not file '{}'", original);
+            throw new NotRegularFileResponseException(
+                    HttpStatus.BAD_REQUEST,
+                    new NotRegularFileException(original.toString()));
+        }
+    }
+
+    public void isTextFile(final Path inSubTree, final Path original) throws IOException {
+        if (!Files.probeContentType(inSubTree).startsWith("text/")) {
+            log.warn("'{}' is not a text file", original);
+            throw new NotTextFileResponseException(HttpStatus.BAD_REQUEST, original.toString());
+        }
+    }
+
+    public void isSizeLessThenMax(final Path inSubTree, final Path original) throws IOException {
+        final long maxFileSize = 100 * 1024 * 1024; // 100 MiB
+        if (Files.size(inSubTree) >= maxFileSize) {
+            log.warn("'{}' size is greater then {} bytes", original, maxFileSize);
+            throw new FileTooBigResponseException(HttpStatus.BAD_REQUEST, original.toString());
+        }
     }
 }

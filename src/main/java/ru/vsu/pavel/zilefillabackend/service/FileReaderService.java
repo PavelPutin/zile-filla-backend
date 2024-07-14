@@ -12,7 +12,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -26,34 +25,15 @@ public class FileReaderService {
 
     public TextFileContentDto getTextFileContent(Path path) {
         log.debug("FileReaderService.getTextFileContent({})", path);
-        // TODO: убрать дублирование кода
         var pathInSubTree = fileSystemAccessService.getPathInSubtree(path);
         log.debug("Get text file content path in subtree: {}", pathInSubTree);
 
-        // TODO: убрать дублирование кода
-        if (!Files.exists(pathInSubTree)) {
-            log.warn("'{}' does not exist", path);
-            throw new NoSuchFileResponseException(HttpStatus.NOT_FOUND, new NoSuchFileException(path.toString()));
-        }
-
-        if (!Files.isRegularFile(pathInSubTree)) {
-            log.warn("Try get not file '{}'", path);
-            throw new NotRegularFileResponseException(
-                    HttpStatus.BAD_REQUEST,
-                    new NotRegularFileException(path.toString()));
-        }
+        fileSystemAccessService.exists(pathInSubTree, path);
+        fileSystemAccessService.isRegularFile(pathInSubTree, path);
 
         try {
-            if (!Files.probeContentType(pathInSubTree).startsWith("text/")) {
-                log.warn("'{}' is not a text file", path);
-                throw new NotTextFileResponseException(HttpStatus.BAD_REQUEST, path.toString());
-            }
-
-            final long maxFileSize = 100 * 1024 * 1024; // 100 MiB
-            if (Files.size(pathInSubTree) >= maxFileSize) {
-                log.warn("'{}' is not a text file", path);
-                throw new FileTooBigResponseException(HttpStatus.BAD_REQUEST, path.toString());
-            }
+            fileSystemAccessService.isTextFile(pathInSubTree, path);
+            fileSystemAccessService.isSizeLessThenMax(pathInSubTree, path);
         } catch (IOException e) {
             log.warn("Can't check file type '{}' because of IOException", path, e);
             throw new IOExceptionResponseException(HttpStatus.INTERNAL_SERVER_ERROR, path.toString());

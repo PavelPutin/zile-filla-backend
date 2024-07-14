@@ -29,20 +29,12 @@ public class ExplorerService {
 
     public List<FileSystemObjectDto> changeDirectory(Path path) {
         log.debug("FileSystemService.changeDirectory({})", path);
-        // TODO: убрать дублирование кода
+
         var pathInSubTree = fileSystemAccessService.getPathInSubtree(path);
         log.debug("Change directory path in subtree: {}", pathInSubTree);
 
-        // TODO: убрать дублирование кода
-        if (!Files.exists(pathInSubTree)) {
-            log.warn("'{}' does not exist", path);
-            throw new NoSuchFileResponseException(HttpStatus.NOT_FOUND, new NoSuchFileException(path.toString()));
-        }
-
-        if (!Files.isDirectory(pathInSubTree)) {
-            log.warn("Try get not directory '{}'", path);
-            throw new NotDirectoryResponseException(HttpStatus.BAD_REQUEST, new NotDirectoryException(path.toString()));
-        }
+        fileSystemAccessService.exists(pathInSubTree, path);
+        fileSystemAccessService.isDirectory(pathInSubTree, path);
 
         var result = new ArrayList<FileSystemObjectDto>();
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(pathInSubTree)) {
@@ -91,21 +83,13 @@ public class ExplorerService {
     public void rename(Path source, RenameDto renameDto) {
         log.debug("FileSystemService.rename({})", source);
 
-        // TODO: убрать дублирование кода
         var pathInSubTree = fileSystemAccessService.getPathInSubtree(source);
         log.debug("Rename source path in subtree '{}'", pathInSubTree);
-
-        // TODO: убрать дублирование кода
-        if (!Files.exists(pathInSubTree)) {
-            log.warn("'{}' does not exist", source);
-            throw new NoSuchFileResponseException(HttpStatus.NOT_FOUND, new NoSuchFileException(source.toString()));
-        }
+        fileSystemAccessService.exists(pathInSubTree, source);
 
         var target = pathInSubTree.resolveSibling(renameDto.newName());
-        if (Files.exists(target)) {
-            log.warn("'{}' already exists", target);
-            throw new FileAlreadyExistsResponseException(HttpStatus.CONFLICT, source.toString());
-        }
+        fileSystemAccessService.notExists(target, source);
+
         log.debug("Rename '{}' to '{}'", pathInSubTree, target);
         try {
             Files.move(pathInSubTree, target, StandardCopyOption.ATOMIC_MOVE);
@@ -156,32 +140,19 @@ public class ExplorerService {
     public void copy(Path source, Path target) {
         log.debug("FileSystemService.copy({})", source);
 
-        // TODO: убрать дублирование кода
         var pathInSubTree = fileSystemAccessService.getPathInSubtree(source);
         if (fileSystemAccessService.isRoot(pathInSubTree)) {
             throw new FileAccessDeniedResponseException(HttpStatus.FORBIDDEN, "");
         }
         log.debug("Copy source path in subtree '{}'", pathInSubTree);
 
-        // TODO: убрать дублирование кода
-        if (!Files.exists(pathInSubTree)) {
-            log.warn("'{}' does not exist", source);
-            throw new NoSuchFileResponseException(HttpStatus.NOT_FOUND, new NoSuchFileException(source.toString()));
-        }
+        fileSystemAccessService.exists(pathInSubTree, source);
 
         var targetInSubTree = fileSystemAccessService.getPathInSubtree(target);
         log.debug("Copy target path in subtree '{}'", targetInSubTree);
 
-        // TODO: убрать дублирование кода
-        if (!Files.exists(targetInSubTree)) {
-            log.warn("'{}' does not exist", target);
-            throw new NoSuchFileResponseException(HttpStatus.NOT_FOUND, new NoSuchFileException(target.toString()));
-        }
-
-        if (!Files.isDirectory(targetInSubTree)) {
-            log.warn("'{}' is not a directory", target);
-            throw new NotDirectoryResponseException(HttpStatus.BAD_REQUEST, target.toString());
-        }
+        fileSystemAccessService.exists(targetInSubTree, target);
+        fileSystemAccessService.isDirectory(targetInSubTree, target);
 
         try {
             if (!Files.isDirectory(pathInSubTree)) {
@@ -214,32 +185,19 @@ public class ExplorerService {
     public void move(Path source, Path target) {
         log.debug("FileSystemService.move({})", source);
 
-        // TODO: убрать дублирование кода
         var pathInSubTree = fileSystemAccessService.getPathInSubtree(source);
         if (fileSystemAccessService.isRoot(pathInSubTree)) {
             throw new FileAccessDeniedResponseException(HttpStatus.FORBIDDEN, "");
         }
         log.debug("Move source path in subtree '{}'", pathInSubTree);
 
-        // TODO: убрать дублирование кода
-        if (!Files.exists(pathInSubTree)) {
-            log.warn("'{}' does not exist", source);
-            throw new NoSuchFileResponseException(HttpStatus.NOT_FOUND, new NoSuchFileException(source.toString()));
-        }
+        fileSystemAccessService.exists(pathInSubTree, source);
 
         var targetInSubTree = fileSystemAccessService.getPathInSubtree(target);
         log.debug("Move target path in subtree '{}'", targetInSubTree);
 
-        // TODO: убрать дублирование кода
-        if (!Files.exists(targetInSubTree)) {
-            log.warn("'{}' does not exist", target);
-            throw new NoSuchFileResponseException(HttpStatus.NOT_FOUND, new NoSuchFileException(target.toString()));
-        }
-
-        if (!Files.isDirectory(targetInSubTree)) {
-            log.warn("'{}' is not a directory", target);
-            throw new NotDirectoryResponseException(HttpStatus.BAD_REQUEST, target.toString());
-        }
+        fileSystemAccessService.exists(targetInSubTree, target);
+        fileSystemAccessService.isDirectory(targetInSubTree, target);
 
         try {
             targetInSubTree = targetInSubTree.resolve(pathInSubTree.getName(pathInSubTree.getNameCount() - 1));
