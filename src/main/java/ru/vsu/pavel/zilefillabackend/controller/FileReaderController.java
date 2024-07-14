@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.vsu.pavel.zilefillabackend.dto.TextFileContent;
+import ru.vsu.pavel.zilefillabackend.dto.TextFileContentDto;
 import ru.vsu.pavel.zilefillabackend.service.FileReaderService;
 
 import java.nio.file.Paths;
@@ -20,7 +20,7 @@ public class FileReaderController {
     private final FileReaderService fileReaderService;
 
     @GetMapping("/{*path}")
-    public ResponseEntity<TextFileContent> getFileContent(
+    public ResponseEntity<TextFileContentDto> getFileContent(
             @PathVariable("path")
             String path
     ) {

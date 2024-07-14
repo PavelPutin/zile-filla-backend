@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import ru.vsu.pavel.zilefillabackend.dto.TextFileContent;
+import ru.vsu.pavel.zilefillabackend.dto.TextFileContentDto;
 import ru.vsu.pavel.zilefillabackend.errors.*;
 import ru.vsu.pavel.zilefillabackend.util.NotRegularFileException;
 
@@ -24,7 +24,7 @@ public class FileReaderService {
 
     private final FileSystemAccessService fileSystemAccessService;
 
-    public TextFileContent getTextFileContent(Path path) {
+    public TextFileContentDto getTextFileContent(Path path) {
         log.debug("FileReaderService.getTextFileContent({})", path);
         // TODO: убрать дублирование кода
         var pathInSubTree = fileSystemAccessService.getPathInSubtree(path);
@@ -64,7 +64,7 @@ public class FileReaderService {
 
         try (BufferedReader reader = Files.newBufferedReader(pathInSubTree);
              Stream<String> lines = reader.lines()) {
-            return new TextFileContent(lines.collect(Collectors.joining("\n")));
+            return new TextFileContentDto(lines.collect(Collectors.joining("\n")));
         } catch (AccessDeniedException e) {
             log.warn("Can't read file '{}' because of SecurityException", path, e);
             throw new FileAccessDeniedResponseException(HttpStatus.FORBIDDEN, path.toString());
