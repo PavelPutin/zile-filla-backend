@@ -48,6 +48,12 @@ public class FileReaderService {
                 log.warn("'{}' is not a text file", path);
                 throw new NotTextFileResponseException(HttpStatus.BAD_REQUEST, path.toString());
             }
+
+            final long maxFileSize = 100 * 1024 * 1024; // 100 MiB
+            if (Files.size(pathInSubTree) >= maxFileSize) {
+                log.warn("'{}' is not a text file", path);
+                throw new FileTooBigResponseException(HttpStatus.BAD_REQUEST, path.toString());
+            }
         } catch (IOException e) {
             log.warn("Can't check file type '{}' because of IOException", path, e);
             throw new IOExceptionResponseException(HttpStatus.INTERNAL_SERVER_ERROR, path.toString());
